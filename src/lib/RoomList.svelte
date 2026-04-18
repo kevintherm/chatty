@@ -1,7 +1,7 @@
 <script>
     import { onMount, onDestroy } from "svelte";
     import { sdk, user } from "./sdk.js";
-    import { Hash, Plus, MessageSquare, Search, User as UserIcon } from "lucide-svelte";
+    import { Hash, MessageSquare, Search, User as UserIcon } from "lucide-svelte";
     import Logo from "./Logo.svelte";
 
     let { onSelectRoom } = $props();
@@ -9,7 +9,6 @@
     let rooms = $state([]);
     let loading = $state(true);
     let error = $state("");
-    let showCreate = $state(false);
     let searchTerm = $state("");
     let users = $state([]);
     let filteredRooms = $derived(
@@ -31,7 +30,6 @@
               )
             : []
     );
-    let newRoomName = $state("");
 
     async function fetchRooms() {
         try {
@@ -81,15 +79,6 @@
         }
     }
 
-    async function createRoom() {
-        if (!newRoomName) return;
-        try {
-            alert("Please search for a user to start a secure chat.");
-        } catch (e) {
-            alert(e.message);
-        }
-    }
-
     function handleRoomRealtime(event, record) {
         if (!record) return;
         if (event === "record.created") {
@@ -119,15 +108,6 @@
         class="h-16 border-b border-surface-800 flex justify-between items-center px-6"
     >
         <Logo class="text-lg" />
-        <div class="flex items-center gap-2">
-            <button
-                onclick={() => (showCreate = !showCreate)}
-                class="p-1 hover:text-lime-primary transition-colors"
-                title="Create Channel"
-            >
-                <Plus class="w-4 h-4" />
-            </button>
-        </div>
     </header>
 
     <div class="px-4 py-3 border-b border-surface-800">
@@ -143,19 +123,6 @@
     </div>
 
     <div class="flex-grow overflow-y-auto overflow-x-hidden p-2 space-y-1">
-        {#if showCreate}
-            <div
-                class="p-2 mb-4 border border-lime-primary/30 bg-lime-primary/5 animate-in fade-in slide-in-from-top-2"
-            >
-                <input
-                    bind:value={newRoomName}
-                    type="text"
-                    placeholder="CH_NAME"
-                    class="w-full bg-surface-900 border border-surface-800 p-2 text-xs uppercase outline-none focus:border-lime-primary"
-                    onkeydown={(e) => e.key === "Enter" && createRoom()}
-                />
-            </div>
-        {/if}
 
         {#if loading}
             <div class="p-4 space-y-2">
