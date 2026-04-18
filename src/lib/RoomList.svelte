@@ -1,7 +1,7 @@
 <script>
     import { onMount } from "svelte";
     import { sdk, user } from "./sdk.js";
-    import { Hash, Plus, MessageSquare, Search } from "lucide-svelte";
+    import { Hash, Plus, MessageSquare, Search, User as UserIcon } from "lucide-svelte";
 
     let { onSelectRoom } = $props();
 
@@ -10,16 +10,34 @@
     let error = $state("");
     let showCreate = $state(false);
     let searchTerm = $state("");
+    let users = $state([]);
     let filteredRooms = $derived(
-        rooms.filter((room) =>
-            room.name.toLowerCase().includes(searchTerm.toLowerCase()),
-        ),
+        rooms.filter((room) => {
+            const partner = room.from_id === $user.id ? room.expand?.to_id : room.expand?.from_id;
+            const search = searchTerm.toLowerCase();
+            return (
+                room.name.toLowerCase().includes(search) ||
+                partner?.name?.toLowerCase().includes(search)
+            );
+        }),
+    );
+    let filteredUsers = $derived(
+        searchTerm.length > 2 
+            ? users.filter(u => 
+                u.id !== $user.id && 
+                (u.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                 u.email?.toLowerCase().includes(searchTerm.toLowerCase()))
+              )
+            : []
     );
     let newRoomName = $state("");
 
     async function fetchRooms() {
         try {
-            const data = await sdk.records.list("rooms", { sort: "name" });
+            const data = await sdk.records.list("rooms", {
+                sort: "name",
+                expand: "from_id,to_id",
+            });
             rooms = data || [];
         } catch (e) {
             error = e.message;
@@ -28,22 +46,53 @@
         }
     }
 
-    async function createRoom() {
-        if (!newRoomName) return;
+    async function fetchUsers() {
         try {
+            const data = await sdk.records.list("users");
+            users = data || [];
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    async function startChat(targetUser) {
+        try {
+            const existing = rooms.find(r => 
+                (r.from_id === $user.id && r.to_id === targetUser.id) ||
+                (r.from_id === targetUser.id && r.to_id === $user.id)
+            );
+            if (existing) {
+                onSelectRoom(existing);
+                return;
+            }
+
             const newRoom = await sdk.records.create("rooms", {
-                name: newRoomName,
+                name: `CH-${Math.random().toString(16).slice(2, 8).toUpperCase()}`,
+                from_id: $user.id,
+                to_id: targetUser.id,
             });
-            rooms.push(newRoom);
-            onSelectRoom(newRoom);
-            newRoomName = "";
-            showCreate = false;
+            await fetchRooms();
+            const created = rooms.find(r => r.id === newRoom.id);
+            onSelectRoom(created || newRoom);
+            searchTerm = "";
         } catch (e) {
             alert(e.message);
         }
     }
 
-    onMount(fetchRooms);
+    async function createRoom() {
+        if (!newRoomName) return;
+        try {
+            alert("Please search for a user to start a secure chat.");
+        } catch (e) {
+            alert(e.message);
+        }
+    }
+
+    onMount(() => {
+        fetchRooms();
+        fetchUsers();
+    });
 </script>
 
 <div
@@ -102,6 +151,27 @@
                 {/each}
             </div>
         {:else}
+            {#if searchTerm.length > 2 && filteredUsers.length > 0}
+                <div class="mb-4">
+                    <p class="text-[9px] uppercase tracking-widest text-lime-primary/50 font-black px-3 mb-2">New Identity Found</p>
+                    {#each filteredUsers as u}
+                        <button
+                            onclick={() => startChat(u)}
+                            class="w-full flex items-center gap-2 px-3 py-2 text-sm text-surface-400 hover:bg-lime-primary/10 hover:text-white transition-all group rounded-none border-l-2 border-transparent hover:border-lime-primary"
+                        >
+                            <UserIcon class="w-4 h-4 text-surface-600 group-hover:text-lime-primary" />
+                            <div class="text-left flex-grow">
+                                <span class="uppercase font-bold tracking-tight block leading-none">{u.name}</span>
+                                <span class="text-[8px] text-surface-600 uppercase font-black">
+                                    {u.public_key ? "SECURE_TERMINAL_ONLINE" : "LEGACY_UPLINK_ONLY"}
+                                </span>
+                            </div>
+                        </button>
+                    {/each}
+                    <div class="h-px bg-surface-800 my-4 mx-3"></div>
+                </div>
+            {/if}
+
             {#each filteredRooms as room}
                 <button
                     onclick={() => onSelectRoom(room)}
@@ -110,9 +180,12 @@
                     <Hash
                         class="w-4 h-4 text-surface-600 group-hover:text-lime-primary transition-colors"
                     />
-                    <span class="uppercase font-bold tracking-tight truncate"
-                        >{room.name}</span
-                    >
+                    <div class="text-left flex-grow truncate">
+                        <span class="uppercase font-bold tracking-tight block leading-none">
+                            {room.from_id === $user.id ? room.expand?.to_id?.name : room.expand?.from_id?.name || room.name}
+                        </span>
+                        <span class="text-[8px] text-surface-600 uppercase font-black">{room.name}</span>
+                    </div>
                 </button>
             {:else}
                 <div class="p-6 text-center">

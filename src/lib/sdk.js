@@ -2,15 +2,14 @@ import { Veloquent, createFetchAdapter, createLocalStorageAdapter, createEchoAda
 import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
 
-// Reverb / Echo Configuration
 // @ts-ignore
 window.Pusher = Pusher;
 
 const echo = new Echo({
     broadcaster: 'reverb',
-    key: 'somerandomstring', // REVERB_APP_KEY
-    wsHost: 'localhost',      // REVERB_HOST
-    wsPort: 8080,             // REVERB_PORT
+    key: 'somerandomstring',
+    wsHost: 'localhost',
+    wsPort: 8080,
     forceTLS: false,
     enabledTransports: ['ws', 'wss'],
     authEndpoint: 'http://chatty.localhost/api/broadcasting/auth',
@@ -28,7 +27,6 @@ export const sdk = new Veloquent({
     realtime: createEchoAdapter(echo)
 });
 
-// Helper for Auth state
 import { writable } from 'svelte/store';
 export const user = writable(null);
 
@@ -49,5 +47,4 @@ export async function refreshUser() {
     return null;
 }
 
-// Initialize user from storage on startup
 refreshUser();

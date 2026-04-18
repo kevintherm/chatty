@@ -1,7 +1,8 @@
 <script>
     import { onMount, onDestroy, tick } from "svelte";
     import { sdk, user } from "./sdk.js";
-    import { Send, Hash, Info, User as UserIcon } from "lucide-svelte";
+    import { cryptoService } from "./crypto.js";
+    import { Send, Hash, User as UserIcon } from "lucide-svelte";
 
     let { room } = $props();
 
@@ -16,10 +17,25 @@
         try {
             const data = await sdk.records.list("messages", {
                 filter: `room_id = "${room.id}"`,
-                sort: "created_at",
+                sort: "-created_at",
                 expand: "user_id",
             });
-            messages = data || [];
+            const rawMessages = data || [];
+
+            const keys = await cryptoService.ensureKeys($user.id);
+            messages = (await Promise.all(
+                rawMessages.map(async (msg) => {
+                    const decrypted = await cryptoService.decrypt(
+                        msg.content,
+                        keys,
+                    );
+                    return {
+                        ...msg,
+                        content: decrypted || "[ENCRYPT_LOCKED]",
+                    };
+                }),
+            )).reverse();
+
             scrollToBottom();
         } catch (e) {
             console.error(e);
@@ -34,10 +50,27 @@
         newMessage = "";
 
         try {
+            const recipient =
+                room.from_id === $user.id
+                    ? room.expand?.to_id
+                    : room.expand?.from_id;
+            if (!recipient?.public_key) {
+                throw new Error(
+                    "Recipient does not have an active secure terminal (Public Key missing)",
+                );
+            }
+
+            const myKeys = await cryptoService.ensureKeys($user.id);
+            const encryptedContent = await cryptoService.encrypt(
+                content,
+                recipient.public_key,
+                myKeys.publicKey,
+            );
+
             await sdk.records.create("messages", {
                 room_id: room.id,
                 user_id: $user.id,
-                content: content,
+                content: encryptedContent,
             });
         } catch (e) {
             alert(e.message);
@@ -48,8 +81,33 @@
         if (!record) return;
         if (event === "record.created" && record.room_id === room.id) {
             if (!messages.find((m) => m.id === record.id)) {
-                messages.push(record);
-                scrollToBottom();
+                (async () => {
+                    const keys = await cryptoService.ensureKeys($user.id);
+                    const decrypted = await cryptoService.decrypt(
+                        record.content,
+                        keys,
+                    );
+
+                    if (!record.expand?.user_id) {
+                        const sender =
+                            record.user_id === room.from_id
+                                ? room.expand?.from_id
+                                : room.expand?.to_id;
+
+                        if (sender) {
+                            record.expand = {
+                                ...record.expand,
+                                user_id: sender,
+                            };
+                        }
+                    }
+
+                    messages.push({
+                        ...record,
+                        content: decrypted || "[ENCRYPT_LOCKED]",
+                    });
+                    scrollToBottom();
+                })();
             }
         }
     }
@@ -57,7 +115,9 @@
     async function scrollToBottom() {
         await tick();
         if (scrollContainer) {
-            scrollContainer.scrollTop = scrollContainer.scrollHeight;
+            requestAnimationFrame(() => {
+                scrollContainer.scrollTop = scrollContainer.scrollHeight;
+            });
         }
     }
 
@@ -89,25 +149,13 @@
             </div>
             <div>
                 <h2 class="text-sm font-black uppercase tracking-wider">
-                    {room?.name || "SELECT CHANNEL"}
+                    {room.from_id === $user.id ? room.expand?.to_id?.name : room.expand?.from_id?.name || "SELECT CHANNEL"}
                 </h2>
-                <div class="flex items-center gap-2">
-                    <span
-                        class="w-2 h-2 bg-lime-primary animate-pulse rounded-full"
-                    ></span>
-                </div>
-            </div>
-        </div>
-        <div class="flex items-center gap-4 text-surface-500">
-            <button class="hover:text-white transition-colors"
-                ><Info class="w-4 h-4" /></button
-            >
-        </div>
     </header>
 
     <div
         bind:this={scrollContainer}
-        class="flex-grow overflow-y-auto p-6 space-y-6 scroll-smooth"
+        class="flex-grow overflow-y-auto p-6 pb-10 space-y-6"
     >
         {#if loading}
             <div class="flex items-center justify-center h-full">
@@ -177,7 +225,7 @@
             <input
                 bind:value={newMessage}
                 type="text"
-                placeholder={`UPLINK TO #${room?.name?.toUpperCase() || "NULL"}...`}
+                placeholder={`UPLINK TO #${(room.from_id === $user.id ? room.expand?.to_id?.name : room.expand?.from_id?.name || "NULL").toUpperCase()}...`}
                 class="w-full bg-surface-900 border border-surface-800 focus:border-lime-primary focus:ring-1 focus:ring-lime-primary/20 p-4 pr-16 outline-none transition-all placeholder:text-surface-700 text-sm font-medium"
                 autocomplete="off"
             />

@@ -1,5 +1,6 @@
 <script>
     import { sdk, refreshUser } from "./sdk.js";
+    import { cryptoService } from "./crypto.js";
     import { LockKeyhole, Mail, User, LogIn, UserPlus } from "lucide-svelte";
 
     let isLogin = $state(true);
@@ -15,16 +16,24 @@
         try {
             if (isLogin) {
                 await sdk.auth.login("users", email, password);
-                await refreshUser();
             } else {
                 await sdk.records.create("users", {
                     email,
                     password,
                     name,
                 });
-                // Auto login after register
                 await sdk.auth.login("users", email, password);
-                await refreshUser();
+            }
+            const userData = await refreshUser();
+
+            if (userData) {
+                const keys = await cryptoService.ensureKeys(userData.id);
+                if (userData.public_key !== keys.publicKey) {
+                    await sdk.records.update("users", userData.id, {
+                        public_key: keys.publicKey,
+                    });
+                    await refreshUser();
+                }
             }
         } catch (e) {
             error = e.message || "Authentication failed";
