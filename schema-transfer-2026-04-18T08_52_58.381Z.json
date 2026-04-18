@@ -1,0 +1,331 @@
+{
+  "version": 1,
+  "exported_at": "2026-04-18T15:52:55+07:00",
+  "metadata": {
+    "collections": [
+      {
+        "type": "base",
+        "is_system": false,
+        "name": "messages",
+        "description": "",
+        "fields": [
+          {
+            "id": "4e5ea6c8",
+            "name": "id",
+            "type": "text",
+            "order": 0,
+            "nullable": false,
+            "unique": true,
+            "min": null,
+            "max": null,
+            "default": null
+          },
+          {
+            "id": "a01ae349",
+            "name": "room_id",
+            "type": "relation",
+            "order": 1,
+            "nullable": false,
+            "unique": false,
+            "target_collection_id": "01kpe1gz57xe1tq5qbkd5gwk87",
+            "cascade_on_delete": true,
+            "default": null
+          },
+          {
+            "id": "8f0b491b",
+            "name": "user_id",
+            "type": "relation",
+            "order": 2,
+            "nullable": false,
+            "unique": false,
+            "target_collection_id": "01kpe0ddvyp53nbw88p6ye6yz9",
+            "cascade_on_delete": true,
+            "default": null
+          },
+          {
+            "id": "60e97b53",
+            "name": "created_at",
+            "type": "timestamp",
+            "order": 3,
+            "nullable": false,
+            "unique": false,
+            "default": null
+          },
+          {
+            "id": "2886a40d",
+            "name": "updated_at",
+            "type": "timestamp",
+            "order": 4,
+            "nullable": false,
+            "unique": false,
+            "default": null
+          },
+          {
+            "id": "86363f19",
+            "name": "content",
+            "type": "json",
+            "order": 5,
+            "nullable": false,
+            "unique": false,
+            "default": null
+          }
+        ],
+        "api_rules": {
+          "list": "room_id.from_id.id = @request.auth.id || room_id.to_id.id = @request.auth.id",
+          "view": "room_id.from_id.id = @request.auth.id || room_id.to_id.id = @request.auth.id",
+          "create": "@request.auth.id != null && user_id = @request.auth.id",
+          "delete": "@request.auth.id != null && user_id = @request.auth.id",
+          "manage": null,
+          "update": "@request.auth.id != null && user_id = @request.auth.id && @request.body.user_id = @request.auth.id"
+        },
+        "indexes": [
+          {
+            "columns": [
+              "room_id"
+            ],
+            "type": "index"
+          },
+          {
+            "columns": [
+              "user_id"
+            ],
+            "type": "index"
+          }
+        ],
+        "options": null
+      },
+      {
+        "type": "base",
+        "is_system": false,
+        "name": "rooms",
+        "description": "",
+        "fields": [
+          {
+            "id": "03ccddf1",
+            "name": "id",
+            "type": "text",
+            "order": 0,
+            "nullable": false,
+            "unique": true,
+            "min": null,
+            "max": null,
+            "default": null
+          },
+          {
+            "id": "a8d73530",
+            "name": "to_id",
+            "type": "relation",
+            "order": 1,
+            "nullable": false,
+            "unique": false,
+            "target_collection_id": "01kpe0ddvyp53nbw88p6ye6yz9",
+            "cascade_on_delete": true,
+            "default": null
+          },
+          {
+            "id": "5bb15211",
+            "name": "from_id",
+            "type": "relation",
+            "order": 2,
+            "nullable": false,
+            "unique": false,
+            "target_collection_id": "01kpe0ddvyp53nbw88p6ye6yz9",
+            "cascade_on_delete": true,
+            "default": null
+          },
+          {
+            "id": "c6e16c6e",
+            "name": "name",
+            "type": "text",
+            "order": 3,
+            "nullable": false,
+            "unique": false,
+            "min": null,
+            "max": null,
+            "default": null
+          },
+          {
+            "id": "ee4b5850",
+            "name": "description",
+            "type": "text",
+            "order": 4,
+            "nullable": true,
+            "unique": false,
+            "min": null,
+            "max": null,
+            "default": null
+          },
+          {
+            "id": "798d2f65",
+            "name": "created_at",
+            "type": "timestamp",
+            "order": 5,
+            "nullable": false,
+            "unique": false,
+            "default": null
+          },
+          {
+            "id": "7adfd69c",
+            "name": "updated_at",
+            "type": "timestamp",
+            "order": 6,
+            "nullable": false,
+            "unique": false,
+            "default": null
+          }
+        ],
+        "api_rules": {
+          "list": "@request.auth.id = from_id || @request.auth.id = to_id",
+          "view": "@request.auth.id = from_id || @request.auth.id = to_id",
+          "create": "@request.auth.id != null && from_id = @request.auth.id",
+          "delete": null,
+          "manage": null,
+          "update": null
+        },
+        "indexes": [
+          {
+            "columns": [
+              "name"
+            ],
+            "type": "index"
+          }
+        ],
+        "options": null
+      },
+      {
+        "type": "auth",
+        "is_system": false,
+        "name": "users",
+        "description": "Default auth users collection",
+        "fields": [
+          {
+            "id": "cd1e0df0",
+            "name": "id",
+            "type": "text",
+            "order": 0,
+            "nullable": false,
+            "unique": true,
+            "min": null,
+            "max": null,
+            "default": null
+          },
+          {
+            "id": "57ea37bd",
+            "name": "public_key",
+            "type": "text",
+            "order": 1,
+            "nullable": true,
+            "unique": false,
+            "min": null,
+            "max": null,
+            "default": null
+          },
+          {
+            "id": "e7363345",
+            "name": "email",
+            "type": "email",
+            "order": 2,
+            "nullable": false,
+            "unique": true,
+            "min": null,
+            "max": null,
+            "default": null
+          },
+          {
+            "id": "5f002dfe",
+            "name": "password",
+            "type": "text",
+            "order": 3,
+            "nullable": false,
+            "unique": false,
+            "min": null,
+            "max": null,
+            "default": null
+          },
+          {
+            "id": "1af248ee",
+            "name": "name",
+            "type": "text",
+            "order": 4,
+            "nullable": true,
+            "unique": false,
+            "min": null,
+            "max": null,
+            "default": null
+          },
+          {
+            "id": "6edcf93e",
+            "name": "email_visibility",
+            "type": "boolean",
+            "order": 5,
+            "nullable": true,
+            "unique": false,
+            "default": true
+          },
+          {
+            "id": "f45b49bb",
+            "name": "verified",
+            "type": "boolean",
+            "order": 6,
+            "nullable": true,
+            "unique": false,
+            "default": false
+          },
+          {
+            "id": "63261abf",
+            "name": "created_at",
+            "type": "timestamp",
+            "order": 7,
+            "nullable": false,
+            "unique": false,
+            "default": null
+          },
+          {
+            "id": "1545c018",
+            "name": "updated_at",
+            "type": "timestamp",
+            "order": 8,
+            "nullable": false,
+            "unique": false,
+            "default": null
+          }
+        ],
+        "api_rules": {
+          "list": "@request.auth.id IS NOT null",
+          "view": "@request.auth.id IS NOT null",
+          "create": "",
+          "delete": null,
+          "manage": null,
+          "update": "@request.auth.id IS NOT null && id = @request.auth.id"
+        },
+        "indexes": [
+          {
+            "columns": [
+              "email"
+            ],
+            "type": "unique"
+          },
+          {
+            "columns": [
+              "public_key"
+            ],
+            "type": "index"
+          }
+        ],
+        "options": {
+          "auth_methods": {
+            "oauth": {
+              "enabled": false
+            },
+            "standard": {
+              "enabled": true,
+              "identity_fields": [
+                "email"
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}
