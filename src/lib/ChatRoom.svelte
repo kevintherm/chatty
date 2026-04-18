@@ -23,18 +23,20 @@
             const rawMessages = data || [];
 
             const keys = await cryptoService.ensureKeys($user.id);
-            messages = (await Promise.all(
-                rawMessages.map(async (msg) => {
-                    const decrypted = await cryptoService.decrypt(
-                        msg.content,
-                        keys,
-                    );
-                    return {
-                        ...msg,
-                        content: decrypted || "[ENCRYPT_LOCKED]",
-                    };
-                }),
-            )).reverse();
+            messages = (
+                await Promise.all(
+                    rawMessages.map(async (msg) => {
+                        const decrypted = await cryptoService.decrypt(
+                            msg.content,
+                            keys,
+                        );
+                        return {
+                            ...msg,
+                            content: decrypted || "[ENCRYPT_LOCKED]",
+                        };
+                    }),
+                )
+            ).reverse();
 
             scrollToBottom();
         } catch (e) {
@@ -149,8 +151,12 @@
             </div>
             <div>
                 <h2 class="text-sm font-black uppercase tracking-wider">
-                    {room.from_id === $user.id ? room.expand?.to_id?.name : room.expand?.from_id?.name || "SELECT CHANNEL"}
+                    {room.from_id === $user.id
+                        ? room.expand?.to_id?.name
+                        : room.expand?.from_id?.name || "SELECT CHANNEL"}
                 </h2>
+            </div>
+        </div>
     </header>
 
     <div

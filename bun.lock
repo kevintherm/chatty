@@ -7,7 +7,7 @@
       "dependencies": {
         "@skeletonlabs/skeleton": "^4.15.2",
         "@skeletonlabs/skeleton-svelte": "^4.15.2",
-        "@veloquent/sdk": "1.2.1",
+        "@veloquent/sdk": "^1.2.3",
         "idb": "^8.0.3",
         "laravel-echo": "^2.3.4",
         "libsodium-wrappers": "^0.8.3",
@@ -136,7 +136,7 @@
 
     "@types/trusted-types": ["@types/trusted-types@2.0.7", "", {}, "sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw=="],
 
-    "@veloquent/sdk": ["@veloquent/sdk@1.2.1", "", {}, "sha512-LjFN/j3CxJJkJOenBVlY/ppp5EXwu6Sam1Ort9Skj+UoLuWn1biZSJgnjxt4Kx8jb3BpEWVOuwQbq1klDP/mZA=="],
+    "@veloquent/sdk": ["@veloquent/sdk@1.2.3", "", {}, "sha512-fX8hp30/s9CHmPL6NIbNkF4depJoP4pBRbafPVFPhGNOFRlRuAqt622D67coi/xERsGu0qC6VaNvamwjo5VM9Q=="],
 
     "@zag-js/accordion": ["@zag-js/accordion@1.39.1", "", { "dependencies": { "@zag-js/anatomy": "1.39.1", "@zag-js/core": "1.39.1", "@zag-js/dom-query": "1.39.1", "@zag-js/types": "1.39.1", "@zag-js/utils": "1.39.1" } }, "sha512-GA3m7gRTm3weSe1eMlHIsTNztcjZ6joIaRgxxKil7q/UX0xIVVGDy0aCr6oo7FAuoMiOOBVurYXILpFZ30nOXA=="],
 
