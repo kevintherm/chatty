@@ -1,10 +1,10 @@
 <script>
     import { onMount, onDestroy } from "svelte";
     import { sdk, user } from "./sdk.js";
-    import { Hash, MessageSquare, Search, User as UserIcon } from "lucide-svelte";
+    import { Hash, MessageSquare, Search, User as UserIcon, LogOut } from "lucide-svelte";
     import Logo from "./Logo.svelte";
 
-    let { onSelectRoom } = $props();
+    let { onSelectRoom, onLogout } = $props();
 
     let rooms = $state([]);
     let loading = $state(true);
@@ -182,7 +182,7 @@
         {/if}
     </div>
 
-    <footer class="h-24 border-t border-surface-800 flex items-center px-6">
+    <footer class="h-24 border-t border-surface-800 flex items-center justify-between px-6">
         <div class="flex items-center gap-3">
             <div
                 class="w-8 h-8 bg-lime-primary rounded-none flex items-center justify-center text-surface-950 text-xs font-black italic"
@@ -202,5 +202,13 @@
                 </p>
             </div>
         </div>
+
+        <button
+            onclick={onLogout}
+            class="p-2 border border-surface-800 hover:border-red-500 hover:bg-red-500/10 hover:text-red-500 transition-all group"
+            title="Terminate Session"
+        >
+            <LogOut class="w-4 h-4" />
+        </button>
     </footer>
 </div>

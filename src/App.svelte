@@ -1,16 +1,15 @@
 <script>
-    import { user, sdk } from "./lib/sdk.js";
+    import { user, sdk, refreshUser } from "./lib/sdk.js";
     import Auth from "./lib/Auth.svelte";
     import RoomList from "./lib/RoomList.svelte";
     import ChatRoom from "./lib/ChatRoom.svelte";
-    import { LogOut, Monitor } from "lucide-svelte";
     import LogoSvg from "./assets/logo.svg";
 
     let selectedRoom = $state(null);
 
     async function handleLogout() {
         await sdk.auth.logout("users");
-        user.set(null);
+        await refreshUser();
         selectedRoom = null;
     }
 </script>
@@ -23,7 +22,7 @@
             <Auth />
         </div>
     {:else}
-        <RoomList onSelectRoom={(room) => (selectedRoom = room)} />
+        <RoomList onSelectRoom={(room) => (selectedRoom = room)} onLogout={handleLogout} />
 
         <div class="flex-grow flex flex-col h-full bg-black">
             {#if selectedRoom}
@@ -68,15 +67,7 @@
             {/if}
         </div>
 
-        <div class="fixed top-4 right-4 flex items-center gap-2">
-            <button
-                onclick={handleLogout}
-                class="p-2 bg-surface-950 border border-surface-800 hover:border-red-500 hover:text-red-500 transition-all"
-                title="Terminate Session"
-            >
-                <LogOut class="w-4 h-4" />
-            </button>
-        </div>
+
     {/if}
 </main>
 

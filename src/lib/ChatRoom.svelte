@@ -10,6 +10,7 @@
     let newMessage = $state("");
     let loading = $state(true);
     let scrollContainer = $state();
+    let processingIds = new Set();
 
     async function fetchMessages() {
         if (!room) return;
@@ -82,13 +83,22 @@
     function handleRealtime(event, record) {
         if (!record) return;
         if (event === "record.created" && record.room_id === room.id) {
-            if (!messages.find((m) => m.id === record.id)) {
-                (async () => {
+            if (
+                messages.find((m) => m.id === record.id) ||
+                processingIds.has(record.id)
+            )
+                return;
+
+            processingIds.add(record.id);
+            (async () => {
+                try {
                     const keys = await cryptoService.ensureKeys($user.id);
                     const decrypted = await cryptoService.decrypt(
                         record.content,
                         keys,
                     );
+
+                    if (messages.find((m) => m.id === record.id)) return;
 
                     if (!record.expand?.user_id) {
                         const sender =
@@ -109,8 +119,12 @@
                         content: decrypted || "[ENCRYPT_LOCKED]",
                     });
                     scrollToBottom();
-                })();
-            }
+                } catch (e) {
+                    console.error("Realtime decryption failed:", e);
+                } finally {
+                    processingIds.delete(record.id);
+                }
+            })();
         }
     }
 

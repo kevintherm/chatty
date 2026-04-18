@@ -33,6 +33,13 @@ export const user = writable(null);
 export async function refreshUser() {
     try {
         const isAuth = await sdk.auth.isAuthenticated();
+        const token = localStorage.getItem('vp:token');
+
+        // Sync Echo headers with current token
+        if (echo.connector?.options?.auth?.headers) {
+            echo.connector.options.auth.headers.Authorization = token ? `Bearer ${token}` : '';
+        }
+
         if (isAuth) {
             const userData = await sdk.auth.me('users');
             user.set(userData);
