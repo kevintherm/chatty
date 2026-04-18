@@ -1,5 +1,5 @@
 <script>
-    import { onMount } from "svelte";
+    import { onMount, onDestroy } from "svelte";
     import { sdk, user } from "./sdk.js";
     import { Hash, Plus, MessageSquare, Search, User as UserIcon } from "lucide-svelte";
 
@@ -89,9 +89,25 @@
         }
     }
 
+    function handleRoomRealtime(event, record) {
+        if (!record) return;
+        if (event === "record.created") {
+            if (record.from_id === $user.id || record.to_id === $user.id) {
+                if (!rooms.find((r) => r.id === record.id)) {
+                    fetchRooms();
+                }
+            }
+        }
+    }
+
     onMount(() => {
         fetchRooms();
         fetchUsers();
+        sdk.realtime.subscribe("rooms", {}, handleRoomRealtime);
+    });
+
+    onDestroy(() => {
+        sdk.realtime.unsubscribe("rooms");
     });
 </script>
 
