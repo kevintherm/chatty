@@ -2,6 +2,7 @@
     import { onMount, onDestroy } from "svelte";
     import { sdk, user } from "./sdk.js";
     import { Hash, Plus, MessageSquare, Search, User as UserIcon } from "lucide-svelte";
+    import Logo from "./Logo.svelte";
 
     let { onSelectRoom } = $props();
 
@@ -117,11 +118,7 @@
     <header
         class="h-16 border-b border-surface-800 flex justify-between items-center px-6"
     >
-        <h2
-            class="text-xs font-black tracking-[0.2em] uppercase text-surface-400"
-        >
-            Channels
-        </h2>
+        <Logo class="text-lg" />
         <div class="flex items-center gap-2">
             <button
                 onclick={() => (showCreate = !showCreate)}

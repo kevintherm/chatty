@@ -2,6 +2,7 @@
     import { sdk, refreshUser } from "./sdk.js";
     import { cryptoService } from "./crypto.js";
     import { LockKeyhole, Mail, User, LogIn, UserPlus } from "lucide-svelte";
+    import Logo from "./Logo.svelte";
 
     let isLogin = $state(true);
     let email = $state("");
@@ -50,11 +51,7 @@
         class="w-full max-w-sm p-8 space-y-6 border border-surface-700 bg-surface-950 rounded-none shadow-2xl"
     >
         <header class="text-center space-y-2">
-            <h1
-                class="text-4xl font-black tracking-tighter uppercase italic drop-shadow-[0_0_10px_rgba(190,242,100,0.3)]"
-            >
-                CHATTY<span class="text-lime-primary">.</span>
-            </h1>
+            <Logo class="text-4xl" />
             <p class="text-surface-400 text-xs tracking-widest uppercase">
                 {isLogin ? "Welcome back, operator" : "Create new identity"}
             </p>
