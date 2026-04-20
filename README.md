@@ -1,6 +1,6 @@
 # Chatty
 
-Free-for-all chat app with E2E encryption. Uses [VeloquentPHP](https://velophp.com) as the backend.
+Direct messaging chat app with E2E encryption. Uses [VeloquentPHP](https://velophp.com) as the backend.
 
 ## Installation
 
