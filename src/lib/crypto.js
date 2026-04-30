@@ -19,6 +19,9 @@ export const cryptoService = {
     },
 
     async ensureKeys(userId) {
+        if (!userId) {
+            throw new Error("Cannot ensure keys without a valid User ID");
+        }
         await this.init();
         const db = await getDB();
         let keyPair = await db.get('keys', userId);

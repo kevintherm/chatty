@@ -20,7 +20,7 @@
   "dependencies": {
     "@skeletonlabs/skeleton": "^4.15.2",
     "@skeletonlabs/skeleton-svelte": "^4.15.2",
-    "@veloquent/sdk": "^1.2.3",
+    "@veloquent/sdk": "^1.4.1",
     "idb": "^8.0.3",
     "laravel-echo": "^2.3.4",
     "libsodium-wrappers": "^0.8.3",

@@ -1,18 +1,20 @@
-import { Veloquent, createFetchAdapter, createLocalStorageAdapter, createEchoAdapter } from '@veloquent/sdk';
+import { Veloquent, createFetchAdapter, createLocalStorageAdapter, createEchoAdapter, createPopupOAuthLauncher } from '@veloquent/sdk';
 import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
+
+export { createPopupOAuthLauncher };
 
 // @ts-ignore
 window.Pusher = Pusher;
 
 const echo = new Echo({
     broadcaster: 'reverb',
-    key: 'somerandomstring',
+    key: 'test',
     wsHost: 'localhost',
     wsPort: 8080,
     forceTLS: false,
     enabledTransports: ['ws', 'wss'],
-    authEndpoint: 'http://chatty.localhost/api/broadcasting/auth',
+    authEndpoint: 'http://localhost:8000/api/broadcasting/auth',
     auth: {
         headers: {
             Authorization: `Bearer ${localStorage.getItem('vp:token')}`
@@ -21,7 +23,7 @@ const echo = new Echo({
 });
 
 export const sdk = new Veloquent({
-    apiUrl: 'http://chatty.localhost',
+    apiUrl: 'http://localhost:8000',
     http: createFetchAdapter(),
     storage: createLocalStorageAdapter(),
     realtime: createEchoAdapter(echo)

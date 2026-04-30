@@ -1,5 +1,5 @@
 <script>
-    import { sdk, refreshUser } from "./sdk.js";
+    import { sdk, refreshUser, createPopupOAuthLauncher } from "./sdk.js";
     import { cryptoService } from "./crypto.js";
     import { LockKeyhole, Mail, User, LogIn, UserPlus } from "lucide-svelte";
     import Logo from "./Logo.svelte";
@@ -38,6 +38,34 @@
             }
         } catch (e) {
             error = e.message || "Authentication failed";
+        } finally {
+            loading = false;
+        }
+    }
+
+    async function handleGoogleLogin() {
+        loading = true;
+        error = "";
+        try {
+            await sdk.auth.loginWithOAuth(
+                "users",
+                "google",
+                createPopupOAuthLauncher(),
+            );
+
+            const userData = await refreshUser();
+
+            if (userData) {
+                const keys = await cryptoService.ensureKeys(userData.id);
+                if (userData.public_key !== keys.publicKey) {
+                    await sdk.records.update("users", userData.id, {
+                        public_key: keys.publicKey,
+                    });
+                    await refreshUser();
+                }
+            }
+        } catch (e) {
+            error = e.message || "OAuth failed";
         } finally {
             loading = false;
         }
@@ -153,6 +181,24 @@
                         />
                     {/if}
                 {/if}
+            </button>
+
+            <div class="relative flex py-2 items-center">
+                <div class="flex-grow border-t border-surface-800"></div>
+                <span
+                    class="flex-shrink mx-4 text-[10px] text-surface-500 uppercase tracking-widest font-bold"
+                    >OR</span
+                >
+                <div class="flex-grow border-t border-surface-800"></div>
+            </div>
+
+            <button
+                type="button"
+                onclick={handleGoogleLogin}
+                disabled={loading}
+                class="w-full py-4 border border-surface-800 bg-surface-900/50 text-white font-black uppercase tracking-widest text-xs hover:bg-surface-800 transition-colors flex items-center justify-center gap-2 group disabled:opacity-50"
+            >
+                CONTINUE WITH GOOGLE
             </button>
         </form>
 
