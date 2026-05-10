@@ -10,3 +10,6 @@ Direct messaging chat app with E2E encryption. Uses [VeloquentPHP](https://velop
 4. Run `realtime:worker` and setup your realtime driver
 5. Done
 
+## Notes
+
+I set build dir to be /docs for github pages, might want to change that in the `vite.config.js` if using conventional hosting.
