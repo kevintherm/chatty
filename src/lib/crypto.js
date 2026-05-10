@@ -52,7 +52,7 @@ export const cryptoService = {
         const sealedForRecipient = libsodium.crypto_box_seal(sessionKey, recipientPubKey);
         const sealedForSender = libsodium.crypto_box_seal(sessionKey, senderPubKey);
 
-        return JSON.stringify({
+        return {
             v: 1,
             n: libsodium.to_base64(nonce),
             p: libsodium.to_base64(encryptedContent),
@@ -60,13 +60,15 @@ export const cryptoService = {
                 r: libsodium.to_base64(sealedForRecipient),
                 s: libsodium.to_base64(sealedForSender)
             }
-        });
+        };
     },
 
     async decrypt(encryptedJson, myKeyPairB64) {
         try {
             await this.init();
-            const bundle = JSON.parse(encryptedJson);
+            const bundle = typeof encryptedJson === 'string' 
+                ? JSON.parse(encryptedJson) 
+                : encryptedJson;
             if (bundle.v !== 1) throw new Error("Unsupported version");
 
             const myPublicKey = libsodium.from_base64(myKeyPairB64.publicKey);

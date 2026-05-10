@@ -8,13 +8,14 @@ export { createPopupOAuthLauncher };
 window.Pusher = Pusher;
 
 const echo = new Echo({
-    broadcaster: 'reverb',
-    key: 'test',
-    wsHost: 'localhost',
-    wsPort: 8080,
-    forceTLS: false,
+    broadcaster: import.meta.env.VITE_BROADCAST_CONNECTION,
+    key: import.meta.env.VITE_PUSHER_APP_KEY,
+    wsHost: import.meta.env.VITE_PUSHER_HOST,
+    wsPort: import.meta.env.VITE_PUSHER_PORT,
+    forceTLS: import.meta.env.VITE_PUSHER_SCHEME === 'https',
+    cluster: import.meta.env.VITE_PUSHER_CLUSTER,
     enabledTransports: ['ws', 'wss'],
-    authEndpoint: 'http://localhost:8000/api/broadcasting/auth',
+    authEndpoint: `${import.meta.env.VITE_API_URL}/api/broadcasting/auth`,
     auth: {
         headers: {
             Authorization: `Bearer ${localStorage.getItem('vp:token')}`
@@ -23,7 +24,7 @@ const echo = new Echo({
 });
 
 export const sdk = new Veloquent({
-    apiUrl: 'http://localhost:8000',
+    apiUrl: import.meta.env.VITE_API_URL,
     http: createFetchAdapter(),
     storage: createLocalStorageAdapter(),
     realtime: createEchoAdapter(echo)
