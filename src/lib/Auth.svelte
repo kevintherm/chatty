@@ -37,6 +37,7 @@
                 }
             }
         } catch (e) {
+            // @ts-ignore
             error = e.message || "Authentication failed";
         } finally {
             loading = false;
@@ -65,6 +66,7 @@
                 }
             }
         } catch (e) {
+            // @ts-ignore
             error = e.message || "OAuth failed";
         } finally {
             loading = false;
